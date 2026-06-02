@@ -33,12 +33,7 @@ function heatColor(v: number, max: number) {
   return `rgba(140,0,1,${op.toFixed(2)})`;
 }
 
-function Donut() {
-  const parts = [
-    { label: 'Cleaned OK', value: 287, tone: 'success' },
-    { label: 'Needs Attention', value: 21, tone: 'warning' },
-    { label: 'Overdue', value: 4, tone: 'danger' },
-  ];
+function DonutChart({ parts }: { parts: { label: string; value: number; tone: string }[] }) {
   const total = parts.reduce((s, p) => s + p.value, 0);
   let acc = 0;
   const R = 54, C = 2 * Math.PI * R;
@@ -70,24 +65,43 @@ function Donut() {
   );
 }
 
-export function AnalyticsView() {
-  const maxHeat = Math.max(...HEATMAP.flatMap(r => r.hours));
-  const days14 = ['M','T','W','T','F','S','S','M','T','W','T','F','S','S'];
+interface AnalyticsProps {
+  series14d?: number[];
+  labels14d?: string[];
+  okCount?: number;
+  attentionCount?: number;
+  publicCount?: number;
+  heatmapData?: { building: string; hours: number[] }[];
+}
+export function AnalyticsView({ series14d, labels14d, okCount, attentionCount, publicCount, heatmapData }: AnalyticsProps) {
+  const seriesData  = series14d?.length ? series14d : SERIES_14D;
+  const labelsData  = labels14d?.length ? labels14d : ['M','T','W','T','F','S','S','M','T','W','T','F','S','S'];
+  const heatRows    = heatmapData?.length ? heatmapData : HEATMAP;
+  const maxHeat     = Math.max(...heatRows.flatMap(r => r.hours), 1);
+  const donutParts  = [
+    { label: 'Cleaned OK',      value: okCount        ?? 287, tone: 'success' },
+    { label: 'Needs Attention', value: attentionCount ?? 21,  tone: 'warning' },
+    { label: 'Public reports',  value: publicCount    ?? 4,   tone: 'danger'  },
+  ];
+  const prevTotal = seriesData.slice(0, 7).reduce((a, b) => a + b, 0);
+  const currTotal = seriesData.slice(7).reduce((a, b) => a + b, 0);
+  const trendPct  = prevTotal > 0 ? Math.round(((currTotal - prevTotal) / prevTotal) * 100) : 0;
+
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginBottom: 16 }}>
         <Card>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 12, marginBottom: 16 }}>
             <div><Eyebrow style={{ marginBottom: 5 }}>14-Day Trend</Eyebrow><H level={3}>Daily verifications</H></div>
-            <Chip tone="success" icon="trending-up">+9% vs prior</Chip>
+            <Chip tone={trendPct >= 0 ? 'success' : 'danger'} icon={trendPct >= 0 ? 'trending-up' : 'trending-down'}>{trendPct >= 0 ? '+' : ''}{trendPct}% vs prior</Chip>
           </div>
-          <BarChart data={SERIES_14D} labels={days14} />
+          <BarChart data={seriesData} labels={labelsData} />
         </Card>
         <Card>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 12, marginBottom: 16 }}>
-            <div><Eyebrow style={{ marginBottom: 5 }}>Status Mix</Eyebrow><H level={3}>Today's outcomes</H></div>
+            <div><Eyebrow style={{ marginBottom: 5 }}>Status Mix</Eyebrow><H level={3}>Today&apos;s outcomes</H></div>
           </div>
-          <Donut />
+          <DonutChart parts={donutParts} />
         </Card>
       </div>
       <Card>
@@ -103,7 +117,7 @@ export function AnalyticsView() {
           <div style={{ display: 'grid', gridTemplateColumns: `150px repeat(${HEAT_HOURS.length}, 1fr)`, gap: 4, minWidth: 720 }}>
             <div />
             {HEAT_HOURS.map(h => <div key={h} style={{ fontSize: 10, color: 'var(--fg-4)', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>{h}</div>)}
-            {HEATMAP.map(row => (
+            {heatRows.map(row => (
               <React.Fragment key={row.building}>
                 <div style={{ fontSize: 12, color: 'var(--fg-2)', fontWeight: 500, display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.building}</div>
                 {row.hours.map((v, i) => (
@@ -129,13 +143,12 @@ export function AnalyticsView() {
   );
 }
 
-const REPORTS = [
-  { id: 'SR-0612', shift: 'AM · 06:00–14:00', date: '01 Jun 2026', verifications: 178, alerts: 3, workers: 4, status: 'Final' },
-  { id: 'SR-0611', shift: 'PM · 14:00–22:00', date: '31 May 2026', verifications: 134, alerts: 5, workers: 3, status: 'Final' },
-  { id: 'SR-0610', shift: 'AM · 06:00–14:00', date: '31 May 2026', verifications: 191, alerts: 2, workers: 4, status: 'Final' },
-  { id: 'SR-0609', shift: 'PM · 14:00–22:00', date: '30 May 2026', verifications: 142, alerts: 4, workers: 3, status: 'Final' },
-];
-export function ReportsView() {
+interface ReportRow { id: string; shift: string; date: string; verifications: number; alerts: number; workers: number; status: string; }
+export function ReportsView({ reports }: { reports?: ReportRow[] }) {
+  const rows = reports ?? [
+    { id: 'SR-0612', shift: 'AM · 06:00–14:00', date: '01 Jun 2026', verifications: 178, alerts: 3, workers: 4, status: 'Final' },
+    { id: 'SR-0611', shift: 'PM · 14:00–22:00', date: '31 May 2026', verifications: 134, alerts: 5, workers: 3, status: 'Final' },
+  ];
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
       <Card pad={0} style={{ overflow: 'hidden' }}>
@@ -146,7 +159,8 @@ export function ReportsView() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr 0.7fr 0.6fr 0.7fr 130px', padding: '11px 20px', borderBottom: '1px solid var(--border-subtle)', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--fg-3)', background: 'var(--bg-sunken)' }}>
           <span>Report</span><span>Shift</span><span>Logs</span><span>Alerts</span><span>Staff</span><span style={{ textAlign: 'right' }}>Export</span>
         </div>
-        {REPORTS.map(r => (
+        {rows.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: 'var(--fg-3)', fontSize: 13 }}>No shift reports yet.</div>}
+        {rows.map(r => (
           <div key={r.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr 0.7fr 0.6fr 0.7fr 130px', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
             <div><div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600, color: 'var(--fg-1)' }}>{r.id}</div><div style={{ fontSize: 11, color: 'var(--fg-3)' }}>{r.date}</div></div>
             <span style={{ fontSize: 12.5, color: 'var(--fg-2)' }}>{r.shift}</span>
@@ -161,31 +175,24 @@ export function ReportsView() {
   );
 }
 
-const AUDIT = [
-  { ts: '01 Jun 2026, 13:42', actor: 'P. Marquez', role: 'ADM', action: 'Dispatched alert A-2048 → Tomas Aquino', ip: '10.0.4.18' },
-  { ts: '01 Jun 2026, 13:30', actor: 'Grace Lim', role: 'STAFF', action: 'Logged Z-0312 · Cleaned OK', ip: '10.0.7.91', prev: 'Needs Attention' },
-  { ts: '01 Jun 2026, 13:18', actor: 'Public', role: 'ANON', action: 'Reported issue · Z-0520 · session #a91f', ip: '10.0.9.x' },
-  { ts: '01 Jun 2026, 12:55', actor: 'P. Marquez', role: 'ADM', action: 'Verified claim LF-7777 · sent pickup email', ip: '10.0.4.18' },
-  { ts: '01 Jun 2026, 12:40', actor: 'Marisol Reyes', role: 'STAFF', action: 'Logged Z-0455 · Needs Attention', ip: '10.0.7.42' },
-  { ts: '01 Jun 2026, 11:20', actor: 'P. Marquez', role: 'ADM', action: 'Created zone Z-0820 · generated QR hash', ip: '10.0.4.18' },
-];
-export function AuditLogView() {
+interface AuditEntry { ts: string; actor: string; role: string; action: string; }
+export function AuditLogView({ entries }: { entries?: AuditEntry[] }) {
+  const rows = entries ?? [];
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 12, color: 'var(--fg-3)' }}>
         <Icon name="lock" size={14} style={{ color: 'var(--success-600)' }} />
-        Append-only · cryptographically signed · every record write is immutable.
+        Append-only · every log and alert update is recorded in real time.
       </div>
       <Card pad={0} style={{ overflow: 'hidden' }}>
-        {AUDIT.map((a, i) => (
+        {rows.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: 'var(--fg-3)', fontSize: 13 }}>No audit entries yet.</div>}
+        {rows.map((a, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--fg-3)', width: 130, flexShrink: 0, paddingTop: 1 }}>{a.ts}</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--fg-3)', width: 150, flexShrink: 0, paddingTop: 1 }}>{a.ts}</span>
             <span style={{ width: 54, flexShrink: 0 }}><Chip tone={a.role === 'ADM' ? 'brand' : a.role === 'ANON' ? 'neutral' : 'info'} dot={false} style={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}>{a.role}</Chip></span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, color: 'var(--fg-1)' }}><strong style={{ fontWeight: 600 }}>{a.actor}</strong> · {a.action}</div>
-              {a.prev && <div style={{ fontSize: 11.5, color: 'var(--fg-3)', marginTop: 3 }}>prev value: <span style={{ fontFamily: 'var(--font-mono)' }}>{a.prev}</span></div>}
             </div>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-4)', flexShrink: 0 }}>{a.ip}</span>
           </div>
         ))}
       </Card>
