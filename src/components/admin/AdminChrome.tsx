@@ -26,11 +26,24 @@ const ADMIN_NAV = [
 interface AdminTitleBarProps {
   campus?: string;
   onCampus?: (id: string) => void;
-  theme?: string;
-  onTheme?: () => void;
 }
-export function AdminTitleBar({ campus = 'main', onCampus = () => {}, theme = 'light', onTheme = () => {} }: AdminTitleBarProps) {
+export function AdminTitleBar({ campus = 'main', onCampus = () => {} }: AdminTitleBarProps) {
   const [open, setOpen] = React.useState(false);
+  const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem('upkeeply-theme') as 'light' | 'dark' | null;
+    const initial = saved ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(initial);
+    document.documentElement.setAttribute('data-theme', initial);
+  }, []);
+
+  const onTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('upkeeply-theme', next);
+    document.documentElement.setAttribute('data-theme', next);
+  };
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const close = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
@@ -97,6 +110,7 @@ interface AdminSidebarProps {
   alertCount?: number;
 }
 export function AdminSidebar({ active, onNavigate, alertCount = 0 }: AdminSidebarProps) {
+  const [mobileOpen, setMobileOpen] = React.useState(false);
   const NavItem = ({ item }: { item: { id: string; label: string; icon: string } }) => {
     const isActive = active === item.id;
     const [h, setH] = React.useState(false);
@@ -126,31 +140,52 @@ export function AdminSidebar({ active, onNavigate, alertCount = 0 }: AdminSideba
     );
   };
   return (
-    <aside style={{
-      width: 240, background: 'var(--bg-surface)', borderRight: '1px solid var(--border-subtle)',
-      display: 'flex', flexDirection: 'column', flexShrink: 0,
-    }}>
-      <div style={{ padding: '8px 10px', overflowY: 'auto', flex: 1 }}>
-        {ADMIN_NAV.map((sec, i) => (
-          <React.Fragment key={i}>
-            <div style={{
-              fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10,
-              letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--fg-3)',
-              padding: i === 0 ? '10px 12px 6px' : '18px 12px 6px',
-            }}>{sec.section}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {sec.items.map(it => <NavItem key={it.id} item={it} />)}
-            </div>
-          </React.Fragment>
-        ))}
-      </div>
-      <div style={{ padding: '10px 12px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'var(--success-600)' }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--success-600)', boxShadow: '0 0 0 3px var(--success-100)' }} />
-          <span style={{ color: 'var(--fg-3)' }}>Realtime · synced</span>
+    <>
+      {/* Mobile hamburger toggle */}
+      <button
+        onClick={() => setMobileOpen(o => !o)}
+        style={{
+          display: 'none', position: 'fixed', bottom: 20, right: 20, zIndex: 300,
+          width: 48, height: 48, borderRadius: '50%', border: 'none', cursor: 'pointer',
+          background: 'var(--crimson-700)', color: '#fff', alignItems: 'center', justifyContent: 'center',
+          boxShadow: 'var(--shadow-lg)',
+        }}
+        className="mobile-fab"
+      >
+        <Icon name={mobileOpen ? 'x' : 'menu'} size={20} />
+      </button>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div onClick={() => setMobileOpen(false)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 250,
+        }} className="mobile-overlay" />
+      )}
+      <aside style={{
+        width: 240, background: 'var(--bg-surface)', borderRight: '1px solid var(--border-subtle)',
+        display: 'flex', flexDirection: 'column', flexShrink: 0,
+      }} className={`admin-sidebar-panel${mobileOpen ? ' mobile-open' : ''}`}>
+        <div style={{ padding: '8px 10px', overflowY: 'auto', flex: 1 }}>
+          {ADMIN_NAV.map((sec, i) => (
+            <React.Fragment key={i}>
+              <div style={{
+                fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 10,
+                letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--fg-3)',
+                padding: i === 0 ? '10px 12px 6px' : '18px 12px 6px',
+              }}>{sec.section}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {sec.items.map(it => <NavItem key={it.id} item={it} />)}
+              </div>
+            </React.Fragment>
+          ))}
         </div>
-      </div>
-    </aside>
+        <div style={{ padding: '10px 12px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'var(--success-600)' }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--success-600)', boxShadow: '0 0 0 3px var(--success-100)' }} />
+            <span style={{ color: 'var(--fg-3)' }}>Realtime · synced</span>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
 

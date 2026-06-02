@@ -248,3 +248,28 @@ textarea:focus, input:focus {
   0% { background: var(--crimson-050); }
   100% { background: transparent; }
 }
+
+/* ─── Mobile responsiveness ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .admin-sidebar-panel {
+    position: fixed !important;
+    left: -260px !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 260 !important;
+    transition: left 0.25s ease !important;
+    width: 240px !important;
+  }
+  .admin-sidebar-panel.mobile-open {
+    left: 0 !important;
+  }
+  .mobile-fab {
+    display: flex !important;
+  }
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

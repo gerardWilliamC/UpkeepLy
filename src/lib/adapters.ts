@@ -52,6 +52,7 @@ export function adaptZone(row: Record<string, unknown>) {
     lastMin: 0,
     today: 0,
     worker: (worker?.name as string) ?? '—',
+    qrHash: (row.qr_hash as string) ?? undefined,
   }
 }
 

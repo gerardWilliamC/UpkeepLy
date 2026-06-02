@@ -133,7 +133,41 @@ export function LiveLogView({ logs, newIds, onNav }: { logs: Record<string, unkn
 }
 
 // ─── QRModal ──────────────────────────────────────────────────────────────────
-export function QRModal({ zone, onClose }: { zone: { id: string; name: string; building: string; type: string }; onClose: () => void }) {
+export function QRModal({ zone, onClose }: { zone: { id: string; name: string; building: string; type: string; qrHash?: string }; onClose: () => void }) {
+  const [qrDataUrl, setQrDataUrl] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!zone.qrHash) { setLoading(false); return; }
+    fetch(`/api/qr?hash=${zone.qrHash}`)
+      .then(r => r.json())
+      .then(d => { setQrDataUrl(d.dataUrl); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [zone.qrHash]);
+
+  const handleDownload = () => {
+    if (!qrDataUrl) return;
+    const a = document.createElement('a');
+    a.href = qrDataUrl;
+    a.download = `qr-${zone.id}.png`;
+    a.click();
+  };
+
+  const handlePrint = () => {
+    if (!qrDataUrl) return;
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write(`<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:monospace">
+      <img src="${qrDataUrl}" style="width:260px;height:260px" />
+      <div style="margin-top:12px;font-size:14px;font-weight:700">${zone.name}</div>
+      <div style="font-size:11px;color:#666;margin-top:4px">${zone.building} · ${zone.type}</div>
+      <div style="font-size:10px;color:#999;margin-top:6px">${zone.id}</div>
+    </body></html>`);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
   return (
     <Scrim onClose={onClose}>
       <div style={{ width: 420, background: 'var(--bg-surface)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-lg)' }} onClick={e => e.stopPropagation()}>
@@ -145,16 +179,21 @@ export function QRModal({ zone, onClose }: { zone: { id: string; name: string; b
           <div onClick={onClose} style={{ cursor: 'pointer', color: 'var(--fg-3)' }}><Icon name="x" size={20} /></div>
         </div>
         <div style={{ padding: 26, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-          <div style={{ padding: 16, background: '#fff', borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
-            <FauxQR value={zone.id + zone.name} size={180} />
+          <div style={{ width: 212, height: 212, padding: 16, background: '#fff', borderRadius: 12, border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {loading
+              ? <div style={{ color: 'var(--fg-4)', fontSize: 12 }}>Generating…</div>
+              : qrDataUrl
+                ? <img src={qrDataUrl} alt="QR code" style={{ width: 180, height: 180 }} />
+                : <FauxQR value={zone.id + zone.name} size={180} />}
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--fg-1)', fontWeight: 600 }}>{zone.id}</div>
-            <div style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 3 }}>{zone.building} · {zone.type} · static hash</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--fg-1)', fontWeight: 600 }}>{zone.id}</div>
+            <div style={{ fontSize: 11.5, color: 'var(--fg-3)', marginTop: 3 }}>{zone.building} · {zone.type}</div>
+            {zone.qrHash && <div style={{ fontSize: 10, color: 'var(--fg-4)', fontFamily: 'var(--font-mono)', marginTop: 4 }}>{zone.qrHash.slice(0, 16)}…</div>}
           </div>
           <div style={{ display: 'flex', gap: 10, width: '100%' }}>
-            <Button variant="secondary" icon="download" style={{ flex: 1 }}>Download PNG</Button>
-            <Button variant="primary" icon="qr-code" style={{ flex: 1 }}>Print Label</Button>
+            <Button variant="secondary" icon="download" onClick={handleDownload} disabled={!qrDataUrl} style={{ flex: 1 }}>Download PNG</Button>
+            <Button variant="primary" icon="qr-code" onClick={handlePrint} disabled={!qrDataUrl} style={{ flex: 1 }}>Print Label</Button>
           </div>
         </div>
       </div>
@@ -163,7 +202,7 @@ export function QRModal({ zone, onClose }: { zone: { id: string; name: string; b
 }
 
 // ─── ZonesView ────────────────────────────────────────────────────────────────
-interface ZoneItem { id: string; name: string; building: string; type: string; status: string; lastMin: number; today: number; worker: string; }
+interface ZoneItem { id: string; name: string; building: string; type: string; status: string; lastMin: number; today: number; worker: string; qrHash?: string; }
 export function ZonesView({ zones: zonesProp }: { zones?: ZoneItem[] }) {
   const data = zonesProp ?? ZONES;
   const [sel, setSel] = React.useState<ZoneItem | null>(null);
