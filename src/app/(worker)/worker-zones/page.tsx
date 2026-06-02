@@ -1,4 +1,7 @@
-// Worker my zones to-do list
-export default function WorkerZones() {
-  return <div>Worker Zones — coming soon</div>
+'use client';
+
+import WorkerApp from '@/components/worker/WorkerApp';
+
+export default function WorkerZonesPage() {
+  return <WorkerApp />;
 }

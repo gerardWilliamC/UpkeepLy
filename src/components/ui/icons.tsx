@@ -1,0 +1,102 @@
+'use client';
+
+import React from 'react';
+
+interface IconProps {
+  name: string;
+  size?: number;
+  stroke?: number;
+  style?: React.CSSProperties;
+  [key: string]: unknown;
+}
+
+export function Icon({ name, size = 18, stroke = 1.6, ...rest }: IconProps) {
+  const props = {
+    width: size, height: size, viewBox: '0 0 24 24',
+    fill: 'none', stroke: 'currentColor', strokeWidth: stroke,
+    strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const,
+    ...rest,
+  };
+  const P: Record<string, React.ReactNode> = {
+    'layout-dashboard': <g><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></g>,
+    'qr-code':          <g><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h.01M21 17v4h-4"/></g>,
+    'scan-line':        <g><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M3 12h18"/></g>,
+    'map-pin':          <g><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></g>,
+    'map':              <g><path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3z"/><path d="M9 3v15M15 6v15"/></g>,
+    'building':         <g><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></g>,
+    'bell':             <g><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></g>,
+    'clipboard-list':   <g><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></g>,
+    'clipboard-check':  <g><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></g>,
+    'user':             <g><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></g>,
+    'settings':         <g><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.4 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 7 4.4l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g>,
+    'search':           <g><circle cx="11" cy="11" r="7"/><path d="m21 21-5-5"/></g>,
+    'chevron-down':     <path d="m6 9 6 6 6-6"/>,
+    'chevron-right':    <path d="m9 6 6 6-6 6"/>,
+    'chevron-left':     <path d="m15 18-6-6 6-6"/>,
+    'arrow-left':       <g><path d="M19 12H5M12 19l-7-7 7-7"/></g>,
+    'arrow-right':      <g><path d="M5 12h14M12 5l7 7-7 7"/></g>,
+    'log-out':          <g><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></g>,
+    'shield':           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+    'shield-check':     <g><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></g>,
+    'lock':             <g><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></g>,
+    'mail':             <g><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></g>,
+    'mail-check':       <g><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m3 7 9 6 9-6M16 19l2 2 4-4"/></g>,
+    'download':         <g><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></g>,
+    'plus':             <path d="M12 5v14M5 12h14"/>,
+    'check':            <path d="M20 6 9 17l-5-5"/>,
+    'check-circle':     <g><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></g>,
+    'alert-circle':     <g><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></g>,
+    'alert-triangle':   <g><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></g>,
+    'clock':            <g><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></g>,
+    'wifi':             <g><path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><circle cx="12" cy="20" r="1"/></g>,
+    'wifi-off':         <g><path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M2 8.82a15 15 0 0 1 4.17-2.65M10.66 5c4.01-.36 8.14.9 11.34 3.76M16.85 11.25a10 10 0 0 1 2.22 1.68M5 13a10 10 0 0 1 5.24-2.76M12 20h.01"/></g>,
+    'menu':             <g><path d="M3 12h18M3 6h18M3 18h18"/></g>,
+    'x':                <g><path d="M18 6 6 18M6 6l12 12"/></g>,
+    'minus':            <path d="M5 12h14"/>,
+    'square':           <rect x="4" y="4" width="16" height="16" rx="1"/>,
+    'arrow-up-right':   <g><path d="M7 17 17 7M7 7h10v10"/></g>,
+    'filter':           <path d="M22 3H2l8 9.5V19l4 2v-8.5z"/>,
+    'users':            <g><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></g>,
+    'user-plus':        <g><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></g>,
+    'history':          <g><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></g>,
+    'edit':             <g><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></g>,
+    'send':             <g><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></g>,
+    'activity':         <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>,
+    'trending-up':      <g><path d="M22 7l-9.5 9.5-5-5L1 18"/><path d="M16 7h6v6"/></g>,
+    'trending-down':    <g><path d="M22 17l-9.5-9.5-5 5L1 6"/><path d="M16 17h6v-6"/></g>,
+    'eye':              <g><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></g>,
+    'eye-off':          <g><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A11 11 0 0 1 12 5c7 0 11 7 11 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.5 13.5 0 0 0 1 12s4 7 11 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="M2 2l20 20"/></g>,
+    'ban':              <g><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></g>,
+    'more-horizontal':  <g><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></g>,
+    'sparkles':         <g><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></g>,
+    'trash-2':          <g><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></g>,
+    'lightbulb':        <g><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></g>,
+    'droplet':          <path d="M12 2.7s6 5.5 6 10.3a6 6 0 0 1-12 0c0-4.8 6-10.3 6-10.3z"/>,
+    'door-open':        <g><path d="M13 4h3a2 2 0 0 1 2 2v14M2 20h20M14 12v.01M4 20V5a2 2 0 0 1 1.5-1.94l5-1.4A1 1 0 0 1 12 2.6V20"/></g>,
+    'camera':           <g><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></g>,
+    'package':          <g><path d="M16.5 9.4 7.5 4.21M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></g>,
+    'key':              <g><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.5 12.5 9.5-9.5M16 7l3 3M14 9l3 3"/></g>,
+    'banknote':         <g><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></g>,
+    'file-text':        <g><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6M9 9h1"/></g>,
+    'map-pinned':       <g><path d="M18 8c0 4.5-6 9-6 9s-6-4.5-6-9a6 6 0 0 1 12 0z"/><circle cx="12" cy="8" r="2"/><path d="M8.835 14H5a1 1 0 0 0-.9.7l-2 6c-.1.5.1 1.3.9 1.3h18c.8 0 1-.8.9-1.3l-2-6a1 1 0 0 0-.9-.7h-3.835"/></g>,
+    'refresh-cw':       <g><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/></g>,
+    'circle-dot':       <g><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></g>,
+    'zap':              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>,
+    'phone':            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>,
+    'sun':              <g><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></g>,
+    'moon':             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>,
+    'monitor':          <g><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></g>,
+    'smartphone':       <g><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></g>,
+    'list':             <g><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></g>,
+    'grid':             <g><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></g>,
+    'inbox':            <g><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></g>,
+    'fingerprint':      <g><path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2M17.29 21.02c.12-.6.43-2.3.5-3.02M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4M8.65 22c.21-.66.45-1.32.57-2M14 13.12c0 2.38 0 6.38-1 8.88M16.94 14c0 1.97-.5 4.4-1 6M9.5 8.4a4 4 0 0 1 7 2.5"/></g>,
+    'clock-alert':      <g><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g>,
+    'circle':           <circle cx="12" cy="12" r="9"/>,
+    'gauge':            <g><path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0"/></g>,
+    'database':         <g><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5M3 12a9 3 0 0 0 18 0"/></g>,
+  };
+  return <svg {...props}>{P[name] || P['square']}</svg>;
+}
+
+export default Icon;
