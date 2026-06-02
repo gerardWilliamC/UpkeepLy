@@ -163,11 +163,13 @@ export function QRModal({ zone, onClose }: { zone: { id: string; name: string; b
 }
 
 // ─── ZonesView ────────────────────────────────────────────────────────────────
-export function ZonesView() {
-  const [sel, setSel] = React.useState<typeof ZONES[0] | null>(null);
+interface ZoneItem { id: string; name: string; building: string; type: string; status: string; lastMin: number; today: number; worker: string; }
+export function ZonesView({ zones: zonesProp }: { zones?: ZoneItem[] }) {
+  const data = zonesProp ?? ZONES;
+  const [sel, setSel] = React.useState<ZoneItem | null>(null);
   const [filter, setFilter] = React.useState('All');
   const filters = ['All', 'Cleaned OK', 'Needs Attention', 'Overdue'];
-  const shown = ZONES.filter(z => filter === 'All' || z.status === filter);
+  const shown = data.filter(z => filter === 'All' || z.status === filter);
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       <FilterBar filters={filters} active={filter} onChange={setFilter}
@@ -205,15 +207,17 @@ export function ZonesView() {
 }
 
 // ─── WorkersView ──────────────────────────────────────────────────────────────
-export function WorkersView() {
+interface WorkerItem { id: string; name: string; initials: string; shift: string; zones: number; today: number; status: string; color: string; }
+export function WorkersView({ workers: workersProp }: { workers?: WorkerItem[] }) {
+  const data = workersProp ?? WORKERS;
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-        <div><Eyebrow style={{ marginBottom: 4 }}>Staff Roster</Eyebrow><H level={3}>{WORKERS.length} workers · {WORKERS.filter(w => w.status === 'On shift').length} on shift</H></div>
+        <div><Eyebrow style={{ marginBottom: 4 }}>Staff Roster</Eyebrow><H level={3}>{data.length} workers · {data.filter(w => w.status === 'On shift').length} on shift</H></div>
         <Button variant="primary" icon="user-plus">Add Worker</Button>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-        {WORKERS.map(w => {
+        {data.map(w => {
           const tone = w.status === 'On shift' ? 'success' : w.status === 'Break' ? 'warning' : 'neutral';
           return (
             <Card key={w.id} pad={18} hover>

@@ -35,3 +35,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { found_item_id, decision } = await req.json()
+    if (!found_item_id || !decision) return NextResponse.json({ error: 'found_item_id and decision required' }, { status: 400 })
+
+    const supabase = await createServerSupabaseClient()
+    const claimStatus = decision === 'returned' ? 'verified' : 'rejected'
+    const itemStatus  = decision === 'returned' ? 'claimed'  : 'unclaimed'
+
+    await supabase.from('claims')
+      .update({ status: claimStatus, resolved_at: new Date().toISOString() })
+      .eq('found_item_id', found_item_id).eq('status', 'pending')
+
+    await supabase.from('found_items').update({ status: itemStatus }).eq('id', found_item_id)
+
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
