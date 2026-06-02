@@ -189,6 +189,14 @@ export function AdminTopBar({ title, breadcrumb, children, active, onNavigate }:
           <div style={{ fontSize: 10, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em' }}>PMU · ADMIN</div>
         </div>
       </div>
+      <form action="/api/auth/logout" method="POST">
+        <button type="submit" title="Sign out" style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: 6, borderRadius: 6,
+          color: 'var(--fg-3)', display: 'flex', alignItems: 'center',
+        }}>
+          <Icon name="log-out" size={17} />
+        </button>
+      </form>
     </div>
   );
 }
