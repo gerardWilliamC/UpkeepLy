@@ -1,9 +1,22 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/icons';
 import { Wordmark, Avatar } from '@/components/ui';
 import { CAMPUSES } from '@/lib/mock-data';
+
+const NAV_ROUTES: Record<string, string> = {
+  dashboard: '/dashboard',
+  live:      '/dashboard',
+  alerts:    '/dashboard',
+  zones:     '/admin-zones',
+  workers:   '/workers',
+  lostfound: '/lost-found',
+  analytics: '/analytics',
+  reports:   '/reports',
+  audit:     '/audit',
+};
 
 const ADMIN_NAV = [
   { section: 'Operations', items: [
@@ -111,12 +124,21 @@ interface AdminSidebarProps {
 }
 export function AdminSidebar({ active, onNavigate, alertCount = 0 }: AdminSidebarProps) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const router = useRouter();
+
+  const handleNav = (id: string) => {
+    onNavigate(id);
+    setMobileOpen(false);
+    const route = NAV_ROUTES[id];
+    if (route) router.push(route);
+  };
+
   const NavItem = ({ item }: { item: { id: string; label: string; icon: string } }) => {
     const isActive = active === item.id;
     const [h, setH] = React.useState(false);
     const badge = item.id === 'alerts' ? alertCount : null;
     return (
-      <div onClick={() => onNavigate(item.id)}
+      <div onClick={() => handleNav(item.id)}
         onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
         style={{
           display: 'flex', alignItems: 'center', gap: 12,
